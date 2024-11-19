@@ -69,7 +69,7 @@ class Lesson(models.Model):
     )
 
     def __str__(self):
-        return self.name_lesson or "Без названия"
+        return self.name_lesson
 
     class Meta:
         verbose_name = ("Урок",)
