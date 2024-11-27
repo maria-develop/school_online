@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from ims.models import Course, Lesson
+from ims.models import Lesson, Course
 
 
 class User(AbstractUser):
@@ -45,8 +45,8 @@ class User(AbstractUser):
 
 class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [
-        ('Наличные', 'Наличные'),
-        ('Перевод на счет', 'Перевод на счет'),
+        ("Наличные", "Наличные"),
+        ("Перевод на счет", "Перевод на счет"),
     ]
 
     user = models.ForeignKey(
@@ -55,6 +55,7 @@ class Payment(models.Model):
         verbose_name="Пользователь",
         help_text="Выберите пользователя, который совершил оплату",
     )
+    # payment_date = models.DateField(auto_now_add=True, verbose_name="Дата оплаты")
     payment_date = models.DateTimeField(
         auto_now_add=True,
         # blank=True,
@@ -90,6 +91,13 @@ class Payment(models.Model):
         verbose_name="Способ оплаты",
         help_text="Выберите способ оплаты",
     )
+    # payment_status = models.CharField(
+    #     max_length=50,
+    #     verbose_name="Статус платежа",
+    #     help_text="Укажите статус платежа",
+    #     blank=True,
+    #     null=True,
+    # )
 
     def __str__(self):
         return f"Оплата от {self.user.email} на сумму {self.amount} руб. {self.payment_method}"

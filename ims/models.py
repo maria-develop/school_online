@@ -1,5 +1,11 @@
 from django.db import models
 
+import users
+from config import settings
+
+
+# from users.models import User
+
 
 class Course(models.Model):
     name = models.CharField(
@@ -21,6 +27,14 @@ class Course(models.Model):
         null=True,
         verbose_name="Описание курса",
         help_text="Укажите описание курса",
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="Владелец курса",
+        help_text="Укажите владельца курса",
     )
 
     def __str__(self):
@@ -66,6 +80,14 @@ class Lesson(models.Model):
         null=True,
         verbose_name="Ссылка на видео",
         help_text="Укажите ссылку на видео",
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="Владелец урока",
+        help_text="Укажите владельца урока",
     )
 
     def __str__(self):

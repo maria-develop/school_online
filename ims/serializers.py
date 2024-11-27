@@ -11,7 +11,7 @@ class LessonSerializer(ModelSerializer):
 
 
 class CourseSerializer(ModelSerializer):
-    lessons = LessonSerializer(many=True, read_only=True, source='lesson_set')
+    lessons = LessonSerializer(many=True, read_only=True, source="lesson_set")
     lessons_count = SerializerMethodField()
 
     # def get_lessons(self, course):
@@ -41,7 +41,7 @@ class CourseSerializer(ModelSerializer):
 
 
 class CourseDetailSerializer(ModelSerializer):
-    lessons = LessonSerializer(many=True, read_only=True, source='lesson_set')
+    lessons = LessonSerializer(many=True, read_only=True, source="lesson_set")
     lessons_count = SerializerMethodField()
 
     def get_lessons_count(self, lesson):
