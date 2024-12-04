@@ -5,12 +5,14 @@ from ims.validators import YoutubeValidator, youtube_url_validator
 
 
 class LessonSerializer(serializers.ModelSerializer):
-    name_lesson = serializers.CharField(validators=[youtube_url_validator])
+    # description_lesson = serializers.CharField(validators=[youtube_url_validator])
+    video_url = serializers.CharField(validators=[youtube_url_validator])
 
     class Meta:
         model = Lesson
         fields = "__all__"
         # fields = ("id", "name_lesson", "description_lesson", "video_url")
+        # validators = [YoutubeValidator(field='video_url')]
 
 
 class CourseSerializer(serializers.ModelSerializer):
