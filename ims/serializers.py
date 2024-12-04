@@ -1,27 +1,35 @@
-from rest_framework.serializers import ModelSerializer, SerializerMethodField
+from rest_framework import serializers
 
-from ims.models import Course, Lesson
+from ims.models import Course, Lesson, Subscription
+from ims.validators import YoutubeValidator, youtube_url_validator
 
 
-class LessonSerializer(ModelSerializer):
+class LessonSerializer(serializers.ModelSerializer):
+    name_lesson = serializers.CharField(validators=[youtube_url_validator])
+
     class Meta:
         model = Lesson
         fields = "__all__"
         # fields = ("id", "name_lesson", "description_lesson", "video_url")
 
 
-class CourseSerializer(ModelSerializer):
+class CourseSerializer(serializers.ModelSerializer):
     lessons = LessonSerializer(many=True, read_only=True, source="lesson_set")
-    lessons_count = SerializerMethodField()
-
-    # def get_lessons(self, course):
-    #     return [less.name_lesson for less in Lesson.objects.filter(lesson=course)]
+    lessons_count = serializers.SerializerMethodField()
+    # name = serializers.CharField(validators=[YoutubeValidator])
+    is_subscribed = serializers.SerializerMethodField()
 
     def get_lessons_count(self, lesson):
         return Lesson.objects.filter(course=lesson).count()
 
-    # lessons = SerializerMethodField()
-    # lessons_count = SerializerMethodField()
+    def get_is_subscribed(self, obj):
+        user = self.context.get("request").user
+        if user.is_authenticated:
+            return Subscription.objects.filter(user=user, course=obj).exists()
+        return False
+
+    # lessons = serializers.SerializerMethodField()
+    # lessons_count = serializers.SerializerMethodField()
     #
     # def get_lessons(self, obj):
     #     """
@@ -38,11 +46,12 @@ class CourseSerializer(ModelSerializer):
     class Meta:
         model = Course
         fields = "__all__"
+        validators = [YoutubeValidator(field='description')]
 
 
-class CourseDetailSerializer(ModelSerializer):
+class CourseDetailSerializer(serializers.ModelSerializer):
     lessons = LessonSerializer(many=True, read_only=True, source="lesson_set")
-    lessons_count = SerializerMethodField()
+    lessons_count = serializers.SerializerMethodField()
 
     def get_lessons_count(self, lesson):
         return Lesson.objects.filter(course=lesson).count()

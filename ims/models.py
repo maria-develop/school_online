@@ -95,3 +95,37 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = ("Урок",)
         verbose_name_plural = "Уроки"
+
+
+class Subscription(models.Model):
+    name_subscription = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name="Наименование подписки",
+        help_text="Укажите наименование подписки",
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="subscriptions",
+        verbose_name="Владелец подписки",
+        help_text="Укажите владельца подписки",
+    )
+
+    course = models.ForeignKey(
+        "ims.Course",
+        on_delete=models.CASCADE,
+        related_name="subscriptions",
+        verbose_name="Наименование курса",
+        help_text="Выберите наименование курса",
+    )
+
+    def __str__(self):
+        return self.name_subscription
+
+    class Meta:
+        verbose_name = ("Подписка",)
+        verbose_name_plural = "Подписки"
+        unique_together = ("user", "course")
