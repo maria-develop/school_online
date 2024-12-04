@@ -1,6 +1,5 @@
 from django.db import models
 
-import users
 from config import settings
 
 
