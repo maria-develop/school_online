@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
@@ -15,6 +17,9 @@ from users.permissions import IsModer, IsOwner
 from ims.paginations import CustomPageNumberPagination
 
 
+@method_decorator(name='list', decorator=swagger_auto_schema(
+    operation_description="Список курсов"
+))
 class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
     pagination_class = CustomPageNumberPagination
