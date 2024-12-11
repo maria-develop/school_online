@@ -1,25 +1,26 @@
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
                                      UpdateAPIView)
-
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
 from ims.models import Course, Lesson, Subscription
+from ims.paginations import CustomPageNumberPagination
 from ims.serializers import (CourseDetailSerializer, CourseSerializer,
                              LessonSerializer)
+from ims.tasks import send_course_update_email
 from users.permissions import IsModer, IsOwner
-from ims.paginations import CustomPageNumberPagination
 
 
-@method_decorator(name='list', decorator=swagger_auto_schema(
-    operation_description="Список курсов"
-))
+@method_decorator(
+    name="list", decorator=swagger_auto_schema(operation_description="Список курсов")
+)
 class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
     pagination_class = CustomPageNumberPagination
@@ -42,6 +43,25 @@ class CourseViewSet(ModelViewSet):
         elif self.action == "destroy":
             self.permission_classes = (~IsModer | IsOwner,)
         return super().get_permissions()
+
+    @action(detail=True, methods=("post",))
+    def update_course(self, request, pk):
+        course = get_object_or_404(Course, pk=pk)
+        if course.update_course.filter(pk=request.user.pk).exists():
+            course.update_course.remove(request.user)
+        # else:
+        #     course.update_course.add(request.user)
+        #     send_course_update_email.delay(course.owner.email)
+        else:
+            course.update_course.add(request.user)
+            """Отправляем уведомления, если обновления не было последние 4 часа:"""
+            if not course.was_updated_recently():
+                subscribers = course.subscriptions.all()
+                emails = [sub.user.email for sub in subscribers]
+                for email in emails:
+                    send_course_update_email.delay(email)
+        serializer = self.get_serializer(course)
+        return Response(serializer.data)
 
 
 class LessonCreateAPIView(CreateAPIView):
@@ -103,7 +123,9 @@ class SubscriptionAPIView(APIView):
         user = request.user
         course_id = request.query_params.get("id")
         if not course_id:
-            return Response({"error": "Не указан course_id"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Не указан course_id"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         course = get_object_or_404(Course, pk=course_id)
         is_subscribed = Subscription.objects.filter(user=user, course=course).exists()
@@ -125,6 +147,9 @@ class SubscriptionAPIView(APIView):
         subscription.save()
 
         return Response(
-            {"message": "Подписка обновлена", "name_subscription": subscription.name_subscription},
+            {
+                "message": "Подписка обновлена",
+                "name_subscription": subscription.name_subscription,
+            },
             status=status.HTTP_200_OK,
         )

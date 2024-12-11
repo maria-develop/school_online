@@ -1,9 +1,9 @@
+from datetime import timedelta
+
 from django.db import models
+from django.utils.timezone import now
 
 from config import settings
-
-
-# from users.models import User
 
 
 class Course(models.Model):
@@ -35,6 +35,18 @@ class Course(models.Model):
         verbose_name="Владелец курса",
         help_text="Укажите владельца курса",
     )
+    update_course = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        null=True,
+        verbose_name="Обновление курса",
+        help_text="Укажите обновление курса",
+        related_name="course_update",
+    )
+    last_updated = models.DateTimeField(auto_now=True)  # дата обновления
+
+    def was_updated_recently(self):  # проверка обновлений за последние 4 ч
+        return now() - self.last_updated < timedelta(hours=4)
 
     def __str__(self):
         return self.name or "Без названия"

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from ims.models import Lesson, Course
+from ims.models import Course, Lesson
 
 
 class User(AbstractUser):
@@ -30,6 +30,11 @@ class User(AbstractUser):
         null=True,
         verbose_name="Аватар",
         help_text="Загрузите аватар",
+    )
+    is_notified_about_blocking = models.BooleanField(
+        default=False,
+        verbose_name="Уведомлен о блокировке",
+        help_text="Флаг для предотвращения повторной отправки уведомления",
     )
 
     USERNAME_FIELD = "email"

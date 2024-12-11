@@ -48,7 +48,7 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = "__all__"
-        validators = [YoutubeValidator(field='description')]
+        validators = [YoutubeValidator(field="description")]
 
 
 class CourseDetailSerializer(serializers.ModelSerializer):
