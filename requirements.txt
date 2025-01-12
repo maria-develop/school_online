@@ -13,3 +13,4 @@ celery==5.4.0
 redis==5.2.1
 eventlet==0.38.1
 django-celery-beat==2.7.0
+flake8==7.1.1
