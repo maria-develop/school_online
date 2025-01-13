@@ -110,7 +110,10 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
-if DEBUG:
+
+ENV_TYPE=os.getenv("ENV_TYPE")
+
+if ENV_TYPE == "local":
     STATICFILES_DIRS = (BASE_DIR / "static",)
 else:
     STATIC_ROOT = BASE_DIR / "static"
