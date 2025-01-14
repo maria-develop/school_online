@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import timedelta
 from pathlib import Path
 
@@ -13,7 +14,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["158.160.6.75"]
 
 
 INSTALLED_APPS = [
@@ -78,9 +79,9 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": os.getenv("POSTGRES_DB"),
         "USER": os.getenv("POSTGRES_USER"),
-        # "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        # "HOST": os.getenv("POSTGRES_HOST"),
-        # "PORT": os.getenv("POSTGRES_PORT"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("POSTGRES_HOST"),
+        "PORT": os.getenv("POSTGRES_PORT"),
     }
 }
 
@@ -110,6 +111,13 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+
+ENV_TYPE=os.getenv("ENV_TYPE")
+
+if ENV_TYPE == "local":
+    STATICFILES_DIRS = (BASE_DIR / "static",)
+else:
+    STATIC_ROOT = BASE_DIR / "static"
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -150,3 +158,11 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 SERVER_EMAIL = EMAIL_HOST_USER
+
+if "test" in sys.argv:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "test_db.sqlite3",
+        }
+    }
