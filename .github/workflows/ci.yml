@@ -89,7 +89,15 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
-            docker stop myapp_new || true
-            docker rm -f myapp_new || true
-            docker run -d --name myapp_new -p 8080:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+          
+            # Check if the container exists and stop/remove it if it does
+            if [ $(docker ps -aq -f name=myapp) ]; then
+              echo "Stopping and removing existing container..."
+              docker stop myapp
+              docker rm myapp
+            fi
+        
+            # Run the new container
+            echo "Starting new container..."
+            docker run -d --name myapp -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
           EOF
