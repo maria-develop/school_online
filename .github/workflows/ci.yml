@@ -26,6 +26,7 @@ jobs:
   test:
     needs: lint
     runs-on: ubuntu-latest
+    env: DJANGO_SETTINGS_MODULE: config.settings
 
     steps:
     - name: Check out code
@@ -35,7 +36,7 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.12'
-
+#
 #    - name: Cache pip
 #      uses: actions/cache@v3
 #      with:
