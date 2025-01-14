@@ -26,7 +26,9 @@ jobs:
   test:
     needs: lint
     runs-on: ubuntu-latest
-    env: DJANGO_SETTINGS_MODULE: config.settings
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings
+      SECRET_KEY: os.getenv("SECRET_KEY")
 
     steps:
     - name: Check out code
@@ -87,7 +89,16 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
-            docker stop myapp || true
-            docker rm myapp || true
-            docker run -d --name myapp -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+          
+            # Check if the container exists and stop/remove it if it does
+          
+            if [ $(docker ps -aq -f name=myapp) ]; then
+              echo "Stopping and removing existing container..."
+              docker stop myapp
+              docker rm myapp
+            fi
+        
+            # Run the new container
+            echo "Starting new container..."
+            docker run -d --name myapp -p 8080:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
           EOF
