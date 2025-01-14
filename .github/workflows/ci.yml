@@ -80,6 +80,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Add SSH key to ssh-agent
+        run: |
+          echo "${{ secrets.SSH_KEY }}" | tr -d 'r' | ssh-add -
+
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
