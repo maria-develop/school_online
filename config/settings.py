@@ -112,7 +112,7 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-ENV_TYPE=os.getenv("ENV_TYPE")
+ENV_TYPE = os.getenv("ENV_TYPE")
 
 if ENV_TYPE == "local":
     STATICFILES_DIRS = (BASE_DIR / "static",)
