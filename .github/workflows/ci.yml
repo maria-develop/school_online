@@ -111,7 +111,9 @@ jobs:
 
           # Удалите висячие контейнеры, если они остались
           docker container prune -f || { echo "Failed to prune containers"; exit 1; }
-
+          
+          docker stop $(docker ps -aq)
+          docker rm -f $(docker ps -aq)
 
           # Загрузите новые образы
           docker-compose pull || { echo "Failed to pull images"; exit 1; }
