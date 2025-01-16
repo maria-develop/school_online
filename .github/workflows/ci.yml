@@ -105,12 +105,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           set -e  # Прекращение выполнения при ошибке
           cd /var/www/html/school_online || { echo "Directory not found"; exit 1; }
-
-          # Остановите все контейнеры, удалите их и освободите ресурсы
-          docker-compose down || { echo "Failed to stop containers"; exit 1; }
-
-          # Удалите висячие контейнеры, если они остались
-          docker container prune -f || { echo "Failed to prune containers"; exit 1; }
           
           docker stop $(docker ps -aq)
           docker rm -f $(docker ps -aq)
