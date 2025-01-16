@@ -123,10 +123,10 @@ jobs:
               docker rm -f school_online_app_1
             fi
           
-            if [ $(docker ps -aq -f name=school_online_db_1) ]; then
+            if [ $(docker ps -aq -f name=school_online_db_2) ]; then
               echo "Stopping and removing existing container..."
-              docker stop school_online_db_1
-              docker rm -f school_online_db_1
+              docker stop school_online_db_2
+              docker rm -f school_online_db_2
             fi
           
             if [ $(docker ps -aq -f name=school_online_redis_1) ]; then
@@ -137,5 +137,6 @@ jobs:
           
             docker-compose down
             docker-compose pull
+            echo "Starting new container..."
             docker-compose up -d --build
           EOF
