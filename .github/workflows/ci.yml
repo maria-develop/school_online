@@ -105,7 +105,36 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd /var/www/html/school_online
             docker-compose pull
-            docker stop $(docker ps -aq)
-            docker rm -f $(docker ps -aq)
+          
+            if [ $(docker ps -aq -f name=school_online_selery_1) ]; then
+              echo "Stopping and removing existing container..."
+              docker stop school_online_selery
+              docker rm school_online_selery
+            fi
+          
+            if [ $(docker ps -aq -f name=school_online_selery-beat_1) ]; then
+              echo "Stopping and removing existing container..."
+              docker stop school_online_selery-beat
+              docker rm school_online_selery-beat
+            fi
+          
+            if [ $(docker ps -aq -f name=school_online_app_1) ]; then
+              echo "Stopping and removing existing container..."
+              docker stop school_online_app_1
+              docker rm school_online_app_1
+            fi
+          
+            if [ $(docker ps -aq -f name=school_online_db_1) ]; then
+              echo "Stopping and removing existing container..."
+              docker stop school_online_db_1
+              docker rm school_online_db_1
+            fi
+          
+            if [ $(docker ps -aq -f name=school_online_redis_1) ]; then
+              echo "Stopping and removing existing container..."
+              docker stop school_online_redis_1
+              docker rm school_online_redis_1
+            fi
+          
             docker-compose up -d --build
           EOF
