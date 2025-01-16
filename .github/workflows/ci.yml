@@ -112,8 +112,6 @@ jobs:
           # Удалите висячие контейнеры, если они остались
           docker container prune -f || { echo "Failed to prune containers"; exit 1; }
 
-          # Удалите ненужные сети (если остались конфликты)
-#          docker network prune -f || { echo "Failed to prune networks"; exit 1; }
 
           # Загрузите новые образы
           docker-compose pull || { echo "Failed to pull images"; exit 1; }
