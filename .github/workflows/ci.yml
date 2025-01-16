@@ -103,40 +103,23 @@ jobs:
       - name: Deploy application
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            cd /var/www/html/school_online
-            
-            if [ $(docker ps -aq -f name=school_online_selery_1) ]; then
-              echo "Stopping and removing existing container..."
-              docker stop school_online_selery_1
-              docker rm -f school_online_selery_1
-            fi
-          
-            if [ $(docker ps -aq -f name=school_online_selery-beat_1) ]; then
-              echo "Stopping and removing existing container..."
-              docker stop school_online_selery-beat_1
-              docker rm -f school_online_selery-beat_1
-            fi
-          
-            if [ $(docker ps -aq -f name=school_online_app_1) ]; then
-              echo "Stopping and removing existing container..."
-              docker stop school_online_app_1
-              docker rm -f school_online_app_1
-            fi
-          
-            if [ $(docker ps -aq -f name=school_online_db_2) ]; then
-              echo "Stopping and removing existing container..."
-              docker stop school_online_db_2
-              docker rm -f school_online_db_2
-            fi
-          
-            if [ $(docker ps -aq -f name=school_online_redis_1) ]; then
-              echo "Stopping and removing existing container..."
-              docker stop school_online_redis_1
-              docker rm -f school_online_redis_1
-            fi
-          
-            docker-compose down
-            docker-compose pull
-            echo "Starting new container..."
-            docker-compose up -d --build
+            cd /var/www/html/school_online || { echo "Directory not found"; exit 1; }
+
+            # Остановить и удалить существующие контейнеры
+            echo "Stopping and removing existing containers..."
+            docker-compose down || { echo "Failed to stop containers"; exit 1; }
+
+            # Удалить висячие контейнеры (если остались)
+            docker container prune -f || { echo "Failed to prune containers"; exit 1; }
+
+            # Удалить ненужные сети
+            docker network prune -f || { echo "Failed to prune networks"; exit 1; }
+
+            # Загрузить новые образы
+            echo "Pulling new images..."
+            docker-compose pull || { echo "Failed to pull images"; exit 1; }
+
+            # Перезапустить контейнеры
+            echo "Starting containers..."
+            docker-compose up -d --build || { echo "Failed to build and start containers"; exit 1; }
           EOF
