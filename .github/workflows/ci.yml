@@ -105,6 +105,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd /var/www/html/school_online
             docker-compose pull
+            docker stop $(docker ps -aq)
             docker rm -f $(docker ps -aq)
             docker-compose up -d --build
           EOF
