@@ -1,4 +1,4 @@
-name: Django CI
+name: Django CI/CD Pipeline
 
 on: [push, pull_request]
 
@@ -85,20 +85,36 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Deploy to server
+#      - name: Deploy to server
+#        run: |
+#          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+#            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+#
+#            if [ $(docker ps -aq -f name=myapp) ]; then
+#              echo "Stopping and removing existing container..."
+#              docker stop myapp
+#              docker rm myapp
+#            fi
+#
+#            echo "Starting new container..."
+#            docker run -d --name myapp -p 8080:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+#          EOF
+
+      - name: Deploy application
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+          set -e  # Прекращение выполнения при ошибке
+          cd /var/www/html/school_online || { echo "Directory not found"; exit 1; }
           
-            # Check if the container exists and stop/remove it if it does
+          if [ $(docker ps -aq -f name=school_online*) ]; then
+            echo "Stopping and removing existing container..."
+            docker stop $(docker ps -aq)
+            docker rm -f $(docker ps -aq)
+          fi
           
-            if [ $(docker ps -aq -f name=myapp) ]; then
-              echo "Stopping and removing existing container..."
-              docker stop myapp
-              docker rm myapp
-            fi
-        
-            # Run the new container
-            echo "Starting new container..."
-            docker run -d --name myapp -p 8080:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+          # Загрузите новые образы
+          docker-compose pull || { echo "Failed to pull images"; exit 1; }
+
+          # Перезапустите сервисы
+          docker-compose up -d --build || { echo "Failed to build and start containers"; exit 1; }
           EOF
