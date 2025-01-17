@@ -116,7 +116,7 @@ ENV_TYPE = os.getenv("ENV_TYPE")
 if ENV_TYPE == "local":
     STATICFILES_DIRS = (BASE_DIR / "static",)
 else:
-    STATIC_ROOT = BASE_DIR / "static"
+    STATIC_ROOT = '/var/www/html/static/'
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
