@@ -14,8 +14,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["158.160.6.75"]
-
+ALLOWED_HOSTS = ["158.160.70.23"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -117,7 +116,7 @@ ENV_TYPE = os.getenv("ENV_TYPE")
 if ENV_TYPE == "local":
     STATICFILES_DIRS = (BASE_DIR / "static",)
 else:
-    STATIC_ROOT = BASE_DIR / "static"
+    STATIC_ROOT = '/var/www/html/school_online/static'
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
